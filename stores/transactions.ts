@@ -5,14 +5,16 @@ import {
   query,
   where,
   getDocs,
+  addDoc,
   type QuerySnapshot,
   type DocumentData,
+  Timestamp,
 } from "firebase/firestore";
 import { useFirestore } from "vuefire";
 
 export interface Transaction {
   id?: string;
-  date: Date;
+  date: Date | string;
   description: string;
   amount: number;
   type: "Income" | "Expense";
@@ -53,6 +55,34 @@ export const useTransactionStore = defineStore("transactions", () => {
     }
   };
 
+  // Add a new transaction
+  const addTransaction = async (transaction: Transaction): Promise<void> => {
+    try {
+      const newTransaction = {
+        ...transaction,
+        date:
+          transaction.date instanceof Date
+            ? transaction.date.toISOString()
+            : new Date(transaction.date).toISOString(), // Convert Date to ISO string
+      };
+
+      const docRef = await addDoc(
+        collection(db, "transactions"),
+        newTransaction
+      );
+
+      // Update local transactions array
+      transactions.value.push({
+        id: docRef.id,
+        ...transaction,
+        date: new Date(newTransaction.date),
+      });
+    } catch (error) {
+      console.error("Error adding transaction:", error);
+      throw error;
+    }
+  };
+
   // Computed properties for totals and breakdowns
   const totalIncome = computed(() =>
     transactions.value
@@ -80,6 +110,7 @@ export const useTransactionStore = defineStore("transactions", () => {
   return {
     transactions,
     fetchTransactions,
+    addTransaction,
     totalIncome,
     totalExpense,
     balance,

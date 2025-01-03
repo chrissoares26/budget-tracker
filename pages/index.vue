@@ -45,9 +45,9 @@
         :income="transactionStore.totalIncome"
         :expense="transactionStore.totalExpense"
       />
-      <DonutChart
-        :data="transactionStore.categoryBreakdown"
-        title="Expense Breakdown"
+      <DonutCharts
+        :incomeData="incomeCategoryBreakdown"
+        :expenseData="expenseCategoryBreakdown"
       />
     </div>
 
@@ -60,7 +60,7 @@
 import { ref, onMounted } from "vue";
 import Filters from "~/components/Filters.vue";
 import BarChart from "~/components/BarChart.vue";
-import DonutChart from "~/components/DonutChart.vue";
+import DonutCharts from "~/components/DonutChart.vue";
 import TransactionTable from "~/components/TransactionTable.vue";
 import TransactionForm from "~/components/TransactionForm.vue";
 import { useTransactionStore } from "~/stores/transactions";
@@ -71,6 +71,25 @@ const transactionStore = useTransactionStore();
 // Filters (Year and Month)
 const selectedYear = ref(new Date().getFullYear());
 const selectedMonth = ref(new Date().getMonth() + 1);
+
+// Computed category breakdowns
+const incomeCategoryBreakdown = computed(() =>
+  transactionStore.transactions
+    .filter((t) => t.type === "Income")
+    .reduce((acc, t) => {
+      acc[t.category] = (acc[t.category] || 0) + t.amount;
+      return acc;
+    }, {} as Record<string, number>)
+);
+
+const expenseCategoryBreakdown = computed(() =>
+  transactionStore.transactions
+    .filter((t) => t.type === "Expense")
+    .reduce((acc, t) => {
+      acc[t.category] = (acc[t.category] || 0) + t.amount;
+      return acc;
+    }, {} as Record<string, number>)
+);
 
 // Fetch transactions on page load
 onMounted(() => {
