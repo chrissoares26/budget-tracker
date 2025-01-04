@@ -1,8 +1,27 @@
+import vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ["nuxt-vuefire"],
-  css: ["~/assets/styles.css"],
-  plugins: ["~/plugins/pinia.js"],
+  build: {
+    transpile: ["vuetify"],
+  },
+  modules: [
+    "nuxt-vuefire",
+    (_options, nuxt) => {
+      nuxt.hooks.hook("vite:extendConfig", (config) => {
+        // @ts-expect-error
+        config.plugins.push(vuetify({ autoImport: true }));
+      });
+    },
+  ],
+  vite: {
+    vue: {
+      template: {
+        transformAssetUrls,
+      },
+    },
+  },
+  css: ["~/assets/styles.css", "vuetify/styles"],
+  plugins: ["~/plugins/pinia.js", "~/plugins/vuetify.ts"],
   vuefire: {
     config: {
       apiKey: "AIzaSyD6HvhPMlOS_ps_EnLQ82EzpzAjHlyfoFk",
