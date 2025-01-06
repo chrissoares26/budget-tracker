@@ -1,47 +1,76 @@
 <template>
-  <form @submit.prevent="submit" class="transaction-form">
-    <!-- Date -->
-    <label for="date">Date:</label>
-    <input id="date" type="date" v-model="formattedDate" required />
+  <v-form @submit.prevent="submit" class="transaction-form">
+    <v-container>
+      <v-row>
+        <!-- Date -->
+        <v-col cols="12" md="6">
+          <v-text-field
+            v-model="formattedDate"
+            label="Date"
+            type="date"
+            outlined
+            required
+          ></v-text-field>
+        </v-col>
 
-    <!-- Description -->
-    <label for="description">Description:</label>
-    <input
-      id="description"
-      type="text"
-      v-model="transaction.description"
-      placeholder="Description"
-      required
-    />
+        <!-- Description -->
+        <v-col cols="12" md="6">
+          <v-text-field
+            v-model="transaction.description"
+            label="Description"
+            placeholder="Description"
+            outlined
+            required
+          ></v-text-field>
+        </v-col>
+      </v-row>
 
-    <!-- Amount -->
-    <label for="amount">Amount:</label>
-    <input
-      id="amount"
-      type="number"
-      v-model.number="transaction.amount"
-      placeholder="Amount"
-      required
-    />
+      <v-row>
+        <!-- Amount -->
+        <v-col cols="12" md="6">
+          <v-text-field
+            v-model.number="transaction.amount"
+            label="Amount"
+            type="number"
+            placeholder="Amount"
+            outlined
+            required
+          ></v-text-field>
+        </v-col>
 
-    <!-- Type -->
-    <label for="type">Type:</label>
-    <select id="type" v-model="transaction.type" required>
-      <option value="Income">Income</option>
-      <option value="Expense">Expense</option>
-    </select>
+        <!-- Type -->
+        <v-col cols="12" md="6">
+          <v-select
+            v-model="transaction.type"
+            :items="['Income', 'Expense']"
+            label="Type"
+            outlined
+            required
+          ></v-select>
+        </v-col>
+      </v-row>
 
-    <!-- Category -->
-    <label for="category">Category:</label>
-    <select id="category" v-model="transaction.category" required>
-      <option v-for="cat in filteredCategories" :key="cat.id" :value="cat.name">
-        {{ cat.name }}
-      </option>
-    </select>
+      <v-row>
+        <!-- Category -->
+        <v-col cols="12">
+          <v-select
+            v-model="transaction.category"
+            :items="filteredCategories"
+            item-text="name"
+            item-value="name"
+            label="Category"
+            outlined
+            required
+          ></v-select>
+        </v-col>
+      </v-row>
 
-    <!-- Submit Button -->
-    <button type="submit">Add Transaction</button>
-  </form>
+      <v-row justify="center">
+        <!-- Submit Button -->
+        <v-btn type="submit" color="primary" large>Add Transaction</v-btn>
+      </v-row>
+    </v-container>
+  </v-form>
 </template>
 
 <script setup lang="ts">
@@ -115,16 +144,5 @@ const submit = async () => {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-
-label {
-  font-weight: bold;
-}
-
-input,
-select,
-button {
-  padding: 0.5rem;
-  font-size: 1rem;
 }
 </style>

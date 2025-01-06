@@ -53,137 +53,86 @@ const editBudget = (budget: Budget) => {
 
 <template>
   <div class="budget-page">
-    <h1 class="text-2xl font-bold mb-6">Budget Management</h1>
+    <v-container>
+      <h1 class="mb-6 text-2xl font-bold">Budget Management</h1>
 
-    <!-- Show loading spinner -->
-    <div v-if="loading" class="loading">
-      <p>Loading...</p>
-    </div>
+      <!-- Show loading spinner -->
+      <v-progress-circular v-if="loading" indeterminate color="primary" />
 
-    <!-- Content when data is ready -->
-    <div v-else>
-      <!-- Add Budget Form -->
-      <div class="add-budget mb-6">
-        <h2 class="text-xl font-bold mb-4">Add Budget</h2>
-        <form @submit.prevent="addNewBudget">
-          <div class="form-group">
-            <label for="category">Category</label>
-            <select id="category" v-model="newBudget.category" required>
-              <option
-                v-for="cat in budgetStore.availableCategories"
-                :key="cat.id"
-                :value="cat.name"
+      <!-- Content when data is ready -->
+      <div v-else>
+        <!-- Add Budget Form -->
+        <v-card class="mb-6">
+          <v-card-title>Add Budget</v-card-title>
+          <v-card-text>
+            <v-form @submit.prevent="addNewBudget">
+              <v-row>
+                <v-col cols="12" sm="6">
+                  <v-select
+                    v-model="newBudget.category"
+                    :items="
+                      budgetStore.availableCategories.map((cat) => cat.name)
+                    "
+                    label="Category"
+                    outlined
+                    required
+                  />
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-select
+                    v-model="newBudget.type"
+                    :items="['Variable', 'Fixed']"
+                    label="Type"
+                    outlined
+                    required
+                  />
+                </v-col>
+                <v-col cols="12">
+                  <v-text-field
+                    v-model.number="newBudget.amount"
+                    label="Amount"
+                    type="number"
+                    min="0"
+                    outlined
+                    required
+                  />
+                </v-col>
+              </v-row>
+              <v-btn type="submit" color="primary">Add Budget</v-btn>
+            </v-form>
+          </v-card-text>
+        </v-card>
+
+        <!-- Budget List -->
+        <v-card>
+          <v-card-title>Current Budgets</v-card-title>
+          <v-data-table
+            :items="budgetStore.budgets"
+            :headers="[
+              { text: 'Category', value: 'category' },
+              { text: 'Type', value: 'type' },
+              { text: 'Amount', value: 'amount' },
+              { text: 'Actions', value: 'actions', sortable: false },
+            ]"
+            item-value="id"
+          >
+            <template v-slot:[`item.actions`]="{ item }">
+              <v-btn small color="secondary" @click="editBudget(item)"
+                >Edit</v-btn
               >
-                {{ cat.name }}
-              </option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="type">Type</label>
-            <select id="type" v-model="newBudget.type" required>
-              <option value="Variable">Variable</option>
-              <option value="Fixed">Fixed</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="amount">Amount</label>
-            <input
-              id="amount"
-              type="number"
-              v-model.number="newBudget.amount"
-              min="0"
-              required
-            />
-          </div>
-          <button type="submit" class="btn btn-primary">Add Budget</button>
-        </form>
+              <v-btn small color="error" @click="deleteBudget(item.id)"
+                >Delete</v-btn
+              >
+            </template>
+          </v-data-table>
+        </v-card>
       </div>
-
-      <!-- Budget List -->
-      <div class="budget-list">
-        <h2 class="text-xl font-bold mb-4">Current Budgets</h2>
-        <table class="budget-table">
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Type</th>
-              <th>Amount</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="budget in budgetStore.budgets" :key="budget.id">
-              <td>{{ budget.category }}</td>
-              <td>{{ budget.type }}</td>
-              <td>{{ budget.amount }}</td>
-              <td>
-                <button class="btn btn-secondary" @click="editBudget(budget)">
-                  Edit
-                </button>
-                <button class="btn btn-danger" @click="deleteBudget(budget.id)">
-                  Delete
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    </v-container>
   </div>
 </template>
 
 <style scoped>
 .budget-page {
   padding: 1rem;
-}
-
-.add-budget,
-.budget-list {
-  margin-bottom: 2rem;
-}
-
-.budget-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-
-.budget-table th,
-.budget-table td {
-  border: 1px solid #ddd;
-  padding: 0.5rem;
-}
-
-.budget-table th {
-  background-color: #f4f4f4;
-}
-
-.btn {
-  padding: 0.5rem 1rem;
-  margin: 0.2rem;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-}
-
-.btn-secondary {
-  background-color: #6c757d;
-  color: #fff;
-  border: none;
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  color: #fff;
-  border: none;
-}
-
-.loading {
-  text-align: center;
-  font-size: 1.2rem;
-  color: #333;
 }
 </style>
